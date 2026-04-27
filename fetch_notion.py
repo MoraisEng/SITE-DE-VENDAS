@@ -116,6 +116,13 @@ if __name__ == "__main__":
     pages = fetch_all()
     print(f"  {len(pages)} páginas encontradas.")
 
+    # DEBUG — imprime as propriedades da primeira página
+    if pages:
+        print("\n=== PROPRIEDADES DA PRIMEIRA PÁGINA ===")
+        for nome, val in pages[0]["properties"].items():
+            print(f"  '{nome}' → tipo: {val.get('type')}")
+        print("=======================================\n")
+
     rows = [normalize(p) for p in pages]
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
