@@ -2,16 +2,14 @@ name: Atualizar dados do Notion
 
 on:
   schedule:
-    - cron: '*/15 * * * *'   # a cada 15 minutos
-  workflow_dispatch:           # permite rodar manualmente pela aba Actions
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write          # necessário para fazer commit do data.json
-
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,13 +21,13 @@ jobs:
 
       - name: Buscar dados do Notion
         env:
-          NOTION_TOKEN:       ${{ secrets.NOTION_TOKEN }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         run: python fetch_notion.py
 
       - name: Commit e push do data.json
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
           git diff --staged --quiet || git commit -m "chore: atualiza data.json [skip ci]"
