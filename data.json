@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-27T18:39:45Z",
+  "updated_at": "2026-04-27T18:50:48Z",
   "rows": [
     {
       "id": "33cc5ab5-32d3-8000-8ba1-e9a0278b0cd8",
@@ -3594,7 +3594,7 @@
       "setor": "RAVENA",
       "tipo": 1,
       "modelo": "SIM",
-      "cliente": "CARLA",
+      "cliente": "",
       "avaliacao": 342932,
       "valorMao": 285000,
       "entregou": "NÃO",
@@ -4900,7 +4900,7 @@
       "cidade": "SENADOR CANEDO",
       "link": "https://drive.google.com/drive/folders/12adKm5Q4nbcSF5RgqQgsNtRUCjVSE3zG?usp=drive_link",
       "obs": "",
-      "qtd": 0
+      "qtd": 1
     },
     {
       "id": "33dc5ab5-32d3-800e-85e3-feaaa51d7480",
@@ -4924,7 +4924,7 @@
       "id": "33dc5ab5-32d3-8022-a1d6-c1e88f65f049",
       "setor": "ST FÉ",
       "setorPBI": "ST FÉ",
-      "cidade": "SENADOR CANEDO",
+      "cidade": "GOIÂNIA",
       "link": "",
       "obs": "",
       "qtd": 0
