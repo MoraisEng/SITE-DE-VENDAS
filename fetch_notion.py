@@ -39,7 +39,8 @@ def get_prop(page, *names):
         if t == "number":
             return p.get("number")
         if t == "select":
-            return p.get("select", {}).get("name")
+            sel = p.get("select")
+            return sel.get("name") if sel else None
         if t == "multi_select":
             return ", ".join(s["name"] for s in p.get("multi_select", []))
         if t == "date":
