@@ -109,21 +109,20 @@ def normalize(page):
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     if not TOKEN or not DATABASE_ID:
-        raise SystemExit("ERROR: NOTION_TOKEN e NOTION_DATABASE_ID devem estar definidos.")
+        raise SystemExit("ERROR: variáveis não definidas.")
 
-    print(f"Buscando banco {DATABASE_ID}…")
     pages = fetch_all()
-    print(f"  {len(pages)} páginas encontradas.")
+    print(f"{len(pages)} páginas encontradas.")
+
+    # Debug: mostrar valor RAW do campo CLIENTES nas primeiras 5 páginas
+    for p in pages[:5]:
+        props = p.get("properties", {})
+        cl = props.get("CLIENTES ")
+        end = props.get("ENDEREÇO", {}).get("title", [{}])
+        nome = end[0].get("plain_text", "?") if end else "?"
+        print(f"  {nome} → CLIENTES raw: {cl}")
 
     rows = [normalize(p) for p in pages]
-
-    # Debug: mostrar amostra dos primeiros 3 registros do RAVENA
-    ravena = [r for r in rows if r.get("setor","").strip().upper() == "RAVENA"]
-    print(f"  Registros RAVENA: {len(ravena)}")
-    for r in ravena[:3]:
-        print(f"    {r['endereco']} | ref={r['ref']} | avaliacao={r['avaliacao']} | cliente={r['cliente']} | modelo={r['modelo']}")
-
     with open(OUTPUT, "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
-
-    print(f"  Salvo em {OUTPUT} ({len(rows)} registros).")
+    print(f"Salvo: {len(rows)} registros.")
