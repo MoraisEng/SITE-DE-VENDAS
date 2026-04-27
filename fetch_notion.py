@@ -24,37 +24,36 @@ HEADERS = {
 URL = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
-def get_prop(page, *names):
-    """Tenta vários nomes de propriedade (case variations)."""
+def get_prop(page, name):
+    """Busca propriedade pelo nome exato."""
     props = page.get("properties", {})
-    for name in names:
-        p = props.get(name)
-        if p is None:
-            continue
-        t = p.get("type")
-        if t == "title":
-            return "".join(x["plain_text"] for x in p.get("title", []))
-        if t == "rich_text":
-            return "".join(x["plain_text"] for x in p.get("rich_text", []))
-        if t == "number":
-            return p.get("number")
-        if t == "select":
-            sel = p.get("select")
-            return sel.get("name") if sel else None
-        if t == "multi_select":
-            return ", ".join(s["name"] for s in p.get("multi_select", []))
-        if t == "date":
-            return (p.get("date") or {}).get("start")
-        if t == "checkbox":
-            return p.get("checkbox")
-        if t == "url":
-            return p.get("url")
-        if t == "formula":
-            f = p.get("formula", {})
-            return f.get("string") or f.get("number")
-        if t == "rollup":
-            arr = (p.get("rollup") or {}).get("array", [])
-            return arr[0].get("number") if arr else None
+    p = props.get(name)
+    if p is None:
+        return None
+    t = p.get("type")
+    if t == "title":
+        return "".join(x["plain_text"] for x in p.get("title", []))
+    if t == "rich_text":
+        return "".join(x["plain_text"] for x in p.get("rich_text", []))
+    if t == "number":
+        return p.get("number")
+    if t == "select":
+        sel = p.get("select")
+        return sel.get("name") if sel else None
+    if t == "multi_select":
+        return ", ".join(s["name"] for s in p.get("multi_select", []))
+    if t == "date":
+        return (p.get("date") or {}).get("start")
+    if t == "checkbox":
+        return p.get("checkbox")
+    if t == "url":
+        return p.get("url")
+    if t == "formula":
+        f = p.get("formula", {})
+        return f.get("string") or f.get("number")
+    if t == "rollup":
+        arr = (p.get("rollup") or {}).get("array", [])
+        return arr[0].get("number") if arr else None
     return None
 
 # ── FETCH ALL PAGES ───────────────────────────────────────────────────────────
@@ -89,22 +88,22 @@ def fetch_all():
     return results
 
 # ── NORMALIZE ─────────────────────────────────────────────────────────────────
+# Nomes EXATOS conforme retornado pela API (incluindo espaços)
 def normalize(page):
     return {
         "id":       page["id"],
-        "endereco": get_prop(page, "ENDEREÇO", "Endereço", "ENDEREDEÇO") or "",
-        "casa":     get_prop(page, "CASA", "Casa") or "",
-        "ref":      get_prop(page, "REF", "Ref", "REF.") or "",
-        "setor":    get_prop(page, "SETOR", "Setor") or "",
-        "tipo":     get_prop(page, "TIPO", "Tipo"),
-        "modelo":   get_prop(page, "MODELO?", "Modelo?", "MODELO") or "",
-        "cliente":  get_prop(page, "CLIENTES", "Clientes", "CLIENTE") or "",
-        "avaliacao":get_prop(page, "AVALIAÇÃO", "Avaliação", "AVALIACAO"),
-        "valorMao": get_prop(page, "VALOR NA MÃO", "Valor na Mão", "VALOR NA MAO"),
-        "entregou": get_prop(page, "ENTEGOU A CASA E PEGOU TERMO DE ENTREGA?",
-                                   "Entregou a Casa?", "ENTREGOU") or "",
-        "fotos":    get_prop(page, "FOTOS", "Fotos") or "",
-        "layout":   get_prop(page, "LAYOUT", "Layout") or "",
+        "endereco": get_prop(page, "ENDEREÇO") or "",
+        "casa":     get_prop(page, "CASA") or "",
+        "ref":      get_prop(page, "REF") or "",
+        "setor":    get_prop(page, "SETOR") or "",
+        "tipo":     get_prop(page, "TIPO"),
+        "modelo":   get_prop(page, "MODELO?") or "",
+        "cliente":  get_prop(page, "CLIENTES ") or "",      # espaço no final
+        "avaliacao":get_prop(page, "AVALIAÇÃO"),
+        "valorMao": get_prop(page, " VALOR NA MÃO "),       # espaços dos dois lados
+        "entregou": get_prop(page, "ENTEGOU A CASA E PEGOU TERMO DE ENTREGA?") or "",
+        "fotos":    get_prop(page, "FOTOS") or "",
+        "layout":   get_prop(page, "LAYOUT") or "",
     }
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
@@ -116,14 +115,13 @@ if __name__ == "__main__":
     pages = fetch_all()
     print(f"  {len(pages)} páginas encontradas.")
 
-    # DEBUG — imprime as propriedades da primeira página
-    if pages:
-        print("\n=== PROPRIEDADES DA PRIMEIRA PÁGINA ===")
-        for nome, val in pages[0]["properties"].items():
-            print(f"  '{nome}' → tipo: {val.get('type')}")
-        print("=======================================\n")
-
     rows = [normalize(p) for p in pages]
+
+    # Debug: mostrar amostra dos primeiros 3 registros do RAVENA
+    ravena = [r for r in rows if r.get("setor","").strip().upper() == "RAVENA"]
+    print(f"  Registros RAVENA: {len(ravena)}")
+    for r in ravena[:3]:
+        print(f"    {r['endereco']} | ref={r['ref']} | avaliacao={r['avaliacao']} | cliente={r['cliente']} | modelo={r['modelo']}")
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=2)
