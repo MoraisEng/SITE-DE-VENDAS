@@ -1,8 +1,8 @@
 """
 fetch_notion.py
-Busca todos os registros do banco Notion (com paginação)
-e salva data.json na raiz do repositório.
-Executado pelo GitHub Actions a cada 5 minutos.
+Busca todos os registros do banco Notion (com paginacao)
+e salva data.json na raiz do repositorio.
+Executado pelo GitHub Actions automaticamente.
 """
 
 import json
@@ -16,11 +16,11 @@ DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "")
 OUTPUT      = "data.json"
 
 HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
+    "Authorization": "Bearer " + TOKEN,
     "Notion-Version": "2022-06-28",
     "Content-Type": "application/json",
 }
-URL = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
+URL = "https://api.notion.com/v1/databases/" + DATABASE_ID + "/query"
 
 def get_prop(page, name):
     p = page.get("properties", {}).get(name)
@@ -66,7 +66,7 @@ def fetch_all():
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.loads(resp.read().decode())
         except urllib.error.HTTPError as e:
-            raise RuntimeError(f"Notion API error {e.code}: {e.read().decode()}")
+            raise RuntimeError("Notion API error " + str(e.code) + ": " + e.read().decode())
         results.extend(data.get("results", []))
         if data.get("has_more"):
             cursor = data["next_cursor"]
@@ -77,15 +77,15 @@ def fetch_all():
 def normalize(page):
     return {
         "id":       page["id"],
-        "endereco": get_prop(page, "ENDEREÇO") or "",
+        "endereco": get_prop(page, "ENDERE\u00c7O") or "",
         "casa":     get_prop(page, "CASA") or "",
         "ref":      get_prop(page, "REF") or "",
         "setor":    get_prop(page, "SETOR") or "",
         "tipo":     get_prop(page, "TIPO"),
         "modelo":   get_prop(page, "MODELO?") or "",
         "cliente":  get_prop(page, "CLIENTES ") or "",
-        "avaliacao":get_prop(page, "AVALIAÇÃO"),
-        "valorMao": get_prop(page, " VALOR NA MÃO "),
+        "avaliacao":get_prop(page, "AVALIA\u00c7\u00c3O"),
+        "valorMao": get_prop(page, " VALOR NA M\u00c3O "),
         "entregou": get_prop(page, "ENTEGOU A CASA E PEGOU TERMO DE ENTREGA?") or "",
         "fotos":    get_prop(page, "FOTOS") or "",
         "layout":   get_prop(page, "LAYOUT") or "",
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     print("Buscando dados do Notion...")
     pages = fetch_all()
-    print(f"  {len(pages)} páginas encontradas.")
+    print("  " + str(len(pages)) + " paginas encontradas.")
 
     rows = [normalize(p) for p in pages]
 
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     with open(OUTPUT, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print(f"  Salvo em {OUTPUT} ({len(rows)} registros).")
-    print(f"  Timestamp: {output['updated_at']}")
+    print("  Salvo em " + OUTPUT + " (" + str(len(rows)) + " registros).")
+    print("  Timestamp: " + output["updated_at"])
