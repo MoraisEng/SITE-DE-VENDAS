@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-27T15:40:20Z",
+  "updated_at": "2026-04-27T15:45:20Z",
   "rows": [
     {
       "id": "33cc5ab5-32d3-8000-8ba1-e9a0278b0cd8",
@@ -3594,7 +3594,7 @@
       "setor": "RAVENA",
       "tipo": 1,
       "modelo": "SIM",
-      "cliente": "SUZANE DOS SANTOS OLIVEIRA S NASCIMENTO ",
+      "cliente": "",
       "avaliacao": 342932,
       "valorMao": 285000,
       "entregou": "NÃO",
@@ -4794,7 +4794,7 @@
       "setor": "RAVENA",
       "tipo": 1,
       "modelo": "",
-      "cliente": "JOÃO  MARCOS DA CRUZ GALVÃO",
+      "cliente": "",
       "avaliacao": 348000,
       "valorMao": 285000,
       "entregou": "NÃO",
