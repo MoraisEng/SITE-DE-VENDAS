@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-27T16:00:23Z",
+  "updated_at": "2026-04-27T16:18:26Z",
   "rows": [
     {
       "id": "33cc5ab5-32d3-8000-8ba1-e9a0278b0cd8",
@@ -3594,7 +3594,7 @@
       "setor": "RAVENA",
       "tipo": 1,
       "modelo": "SIM",
-      "cliente": "",
+      "cliente": "carla",
       "avaliacao": 342932,
       "valorMao": 285000,
       "entregou": "NÃO",
@@ -4794,7 +4794,7 @@
       "setor": "RAVENA",
       "tipo": 1,
       "modelo": "",
-      "cliente": "",
+      "cliente": "joao",
       "avaliacao": 348000,
       "valorMao": 285000,
       "entregou": "NÃO",
