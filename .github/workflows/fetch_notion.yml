@@ -23,6 +23,7 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          NOTION_DATABASE_ID_DISP: ${{ secrets.NOTION_DATABASE_ID_DISP }}
         run: python fetch_notion.py
 
       - name: Commit e push do data.json
