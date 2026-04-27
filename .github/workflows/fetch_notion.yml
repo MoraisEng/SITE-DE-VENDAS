@@ -2,7 +2,7 @@ name: Atualizar dados do Notion
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/2 * * * *'
   workflow_dispatch:
 
 jobs:
