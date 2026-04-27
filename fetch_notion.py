@@ -1,13 +1,15 @@
 """
-fetch_notion.py - DEBUG VERSION
-Imprime raw de todas as propriedades das primeiras páginas RAVENA
-para identificar nomes e tipos corretos.
+fetch_notion.py
+Busca todos os registros do banco Notion (com paginação)
+e salva data.json na raiz do repositório.
+Executado pelo GitHub Actions a cada 5 minutos.
 """
 
 import json
 import os
 import urllib.request
 import urllib.error
+from datetime import datetime, timezone
 
 TOKEN       = os.environ.get("NOTION_TOKEN", "")
 DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "")
@@ -48,8 +50,7 @@ def get_prop(page, name):
     if t == "rollup":
         arr = (p.get("rollup") or {}).get("array", [])
         if arr:
-            item = arr[0]
-            return item.get("number") or item.get("string") or str(item)
+            return arr[0].get("number") or arr[0].get("string")
         return None
     return None
 
@@ -92,60 +93,21 @@ def normalize(page):
 
 if __name__ == "__main__":
     if not TOKEN or not DATABASE_ID:
-        raise SystemExit("ERROR: variáveis não definidas.")
+        raise SystemExit("ERROR: NOTION_TOKEN e NOTION_DATABASE_ID devem estar definidos.")
 
-    print(f"Buscando banco...")
+    print("Buscando dados do Notion...")
     pages = fetch_all()
-    print(f"{len(pages)} páginas encontradas.")
-
-    # Encontrar primeiras 3 páginas do RAVENA com cliente preenchido
-    ravena_com_cliente = []
-    for p in pages:
-        props = p.get("properties", {})
-        setor_prop = props.get("SETOR", {})
-        setor_val = ""
-        if setor_prop.get("type") == "select":
-            sel = setor_prop.get("select")
-            setor_val = sel.get("name", "") if sel else ""
-        
-        if setor_val.strip().upper() != "RAVENA":
-            continue
-            
-        # Checar se tem cliente em QUALQUER campo rich_text
-        for nome, prop in props.items():
-            if prop.get("type") == "rich_text":
-                val = "".join(x["plain_text"] for x in prop.get("rich_text", []))
-                if val.strip():
-                    ravena_com_cliente.append((p, nome, val))
-                    break
-        
-        if len(ravena_com_cliente) >= 3:
-            break
-
-    print("\n=== DEBUG: RAVENA com rich_text preenchido ===")
-    for page, campo, valor in ravena_com_cliente:
-        end = get_prop(page, "ENDEREÇO") or "?"
-        print(f"\nEndereço: {end}")
-        print(f"  Campo rich_text com valor: '{campo}' = '{valor}'")
-        # Mostrar também VALOR NA MÃO raw
-        props = page.get("properties", {})
-        for nome, prop in props.items():
-            if "VALOR" in nome.upper() and "MÃO" in nome.upper():
-                print(f"  Campo valor: repr='{repr(nome)}' tipo={prop.get('type')} val={prop.get('number')}")
-            if "CLIENTE" in nome.upper():
-                print(f"  Campo cliente: repr='{repr(nome)}' tipo={prop.get('type')} raw={prop.get('rich_text','')[:1]}")
-    print("==============================================\n")
+    print(f"  {len(pages)} páginas encontradas.")
 
     rows = [normalize(p) for p in pages]
-    
-    # Estatísticas
-    ravena = [r for r in rows if r.get("setor","").strip().upper() == "RAVENA"]
-    com_cliente = [r for r in ravena if r.get("cliente","").strip()]
-    com_valor = [r for r in ravena if r.get("valorMao") is not None]
-    print(f"RAVENA total: {len(ravena)}")
-    print(f"RAVENA com cliente: {len(com_cliente)}")
-    print(f"RAVENA com valorMao: {len(com_valor)}")
+
+    output = {
+        "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "rows": rows
+    }
 
     with open(OUTPUT, "w", encoding="utf-8") as f:
-        json.dump(rows, f, ensure_ascii=False, indent=2)
-    print(f"Salvo: {len(rows)} registros.")
+        json.dump(output, f, ensure_ascii=False, indent=2)
+
+    print(f"  Salvo em {OUTPUT} ({len(rows)} registros).")
+    print(f"  Timestamp: {output['updated_at']}")
